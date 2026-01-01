@@ -36,24 +36,39 @@ churn-analysis/
 │   └── random_forest_model.ipynb     # Jupyter notebook for ML model
 │
 ├── data/
-│   ├── stg_churn.csv                 # Staging data
-│   
+│   ├── stg_churn.csv                 # Staging data (all customers)
+│   ├── churned_stayed.csv            # Training data (Churned + Stayed)
+│   ├── joined.csv                    # New customers for prediction
+│
 └── README.md
 ```
 
 ## 📈 Analysis Components
 
-### 1. SQL Analysis
+### 1. Data Preparation
+
+The dataset contains three customer statuses:
+- **Churned**: Customers who left the service (used for training)
+- **Stayed**: Customers who remained with the service (used for training)
+- **Joined**: New customers without churn history (used for prediction)
+
+**Data Splitting Strategy**:
+- Created separate datasets for model training (Churned + Stayed) and prediction (Joined)
+- SQL views created: `vw_churndata` (Churned + Stayed) and `vw_joined` (Joined customers)
+
+### 2. SQL Analysis
 
 The SQL queries perform comprehensive data exploration and transformation:
 
 - **Data Quality Checks**: Null value detection and handling
-- **Churn Metrics**: Overall and segmented churn rates
+- **Churn Metrics**: Overall and segmented churn rates (based on Churned vs Stayed)
 - **Customer Segmentation**: By gender, contract type, tenure, state, and services
 - **Revenue Analysis**: Revenue loss calculation by customer status
 - **Data Preparation**: Creating production tables and views
+  - `vw_churndata`: View for Churned and Stayed customers (training data)
+  - `vw_joined`: View for Joined customers (prediction data)
 
-### 2. Power BI Dashboard
+### 3. Power BI Dashboard
 
 #### Summary Dashboard
 - Total customer metrics and KPIs
@@ -64,7 +79,7 @@ The SQL queries perform comprehensive data exploration and transformation:
 - Churn distribution by category
 
 #### Prediction Dashboard
-- Predicted churners breakdown (248 female, 133 male)
+- Predicted churners from **Joined customers** (248 female, 133 male = 381 total)
 - At-risk customer segmentation by:
   - Age group
   - Marital status
@@ -76,12 +91,18 @@ The SQL queries perform comprehensive data exploration and transformation:
 
 ### 3. Machine Learning Model
 
-**Random Forest Classifier** used to predict future churners based on:
-- Customer demographics (age, gender, marital status)
-- Service usage patterns
-- Contract details
-- Payment behavior
-- Tenure and engagement metrics
+**Methodology**:
+- **Training Data**: Customers with status 'Churned' or 'Stayed' (historical data with known outcomes)
+- **Prediction Data**: Customers with status 'Joined' (new customers without churn history)
+- **Model**: Random Forest Classifier trained on historical churn patterns
+- **Features Used**:
+  - Customer demographics (age, gender, marital status)
+  - Service usage patterns
+  - Contract details
+  - Payment behavior
+  - Tenure and engagement metrics
+  
+The model learns from past customer behavior (Churned vs Stayed) to predict which newly joined customers are at risk of churning.
 
 ## 🔍 Key Insights
 
@@ -97,6 +118,19 @@ The SQL queries perform comprehensive data exploration and transformation:
 - **Attitude-related churn**: 301 customers
 - **Dissatisfaction**: 300 customers
 - **Price sensitivity**: 196 customers
+
+## 🔄 Machine Learning Workflow
+
+1. **Training Phase**:
+   - Input: Historical customers (Churned + Stayed status)
+   - Features: Demographics, services, contract, payment patterns
+   - Target: Customer_Status (Churned = 1, Stayed = 0)
+   - Output: Trained Random Forest model
+
+2. **Prediction Phase**:
+   - Input: New customers (Joined status)
+   - Process: Apply trained model to predict churn probability
+   - Output: 381 customers identified as high churn risk
 
 ## 📊 Database Schema
 
@@ -123,3 +157,9 @@ The SQL queries perform comprehensive data exploration and transformation:
 - [ ] Customer lifetime value (CLV) modeling
 - [ ] Automated alerting system for high-risk customers
 - [ ] Integration with CRM systems
+
+
+
+---
+
+**Note**: This analysis is based on historical data and should be combined with domain expertise for strategic decision-making.
