@@ -37,8 +37,7 @@ churn-analysis/
 │
 ├── data/
 │   ├── stg_churn.csv                 # Staging data
-│   └── prod_churn.csv                # Production data
-│
+│   
 └── README.md
 ```
 
