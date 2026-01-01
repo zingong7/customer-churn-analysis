@@ -88,7 +88,8 @@ The SQL queries perform comprehensive data exploration and transformation:
   - Payment method
   - Contract type
 - Detailed customer list with risk indicators
-
+  
+joined.csv filed was used to create predicted churner dashboard
 ### 3. Machine Learning Model
 
 **Methodology**:
